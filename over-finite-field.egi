@@ -82,11 +82,19 @@
 
 (define $p.gcd
   (lambda [$f $g $x]
-    (if (eq? g 0) 0
+    (if (eq? g 0) f
       (let {[$q (fst (p.P./ f g x))] [$r (snd (p.P./ f g x))]}
         (match r math-expr
           {[,0 (p.monic g x)]
            [_ (p.gcd g r x)]})))))
+
+(define $deg
+  (lambda [$f $x]
+    (length (coefficients f x))))
+
+(define $p.∂/∂
+  (lambda [$f $x]
+    (coef-mod (∂/∂ f x))))
 
 ;square free factorization in ch 0
 ;Yun's algorithm
@@ -104,49 +112,62 @@
   (lambda [$f $x]
     (cdr (Yun' f (∂/∂ f x) x))))
 
-(SFF0 (+ (** x 2) x) x)
+;(SFF0 (+ (** x 2) x) x)
 ;{(+ x x^2)}
-(SFF0 (** x 2) x)
+;(SFF0 (** x 2) x)
 ;{1 x}
-(SFF0 (** (* x (+ x 1)) 2) x)
+;(SFF0 (** (* x (+ x 1)) 2) x)
 ;{1 (+ x x^2)}
-(SFF0 (* (** x 3) (+ x 1)) x)
+;(SFF0 (* (** x 3) (+ x 1)) x)
 ;{(+ 1 x) 1 x}
 
 ;square free factorizatin in ch p
-(define $step
-  (lambda [$i $w $c]
-    (let* {[$y (p.gcd w c x)]
-           [$fac (p.P./ w y x)]}
-      (match y math-expr
-        {[,1 {[(p.P/ c y x)] [fac i]}]
-         [_ (cons [fac i] (step (+ i 1) y (p.P/ c y x)))]}))))
-
 (define $rewrite-rule-p-power
   (lambda [$term]
     (match term math-expr
       {[(* $a ,x^$k $r)
         (*' a r (**' x (/ k p)))]
        [_ term]})))
-(rewrite-rule-p-power (** x p))
 
 (define $p-inv (map-terms rewrite-rule-p-power $))
-(p-inv (+ 1 (** x p) (** x (* 3 p))))
+;(p-inv (+ 1 (** x p) (** x (* 3 p))))
+
+(define $step
+  (lambda [$i $w $c]
+    (let* {[$y (p.gcd w c x)]
+           [$fac (fst (p.P./ w y x))]}
+      (match y math-expr
+        {[,1 {[(fst (p.P./ c y x))] [fac i]}]
+         [_ (cons [fac i] (step (+ i 1) y (fst (p.P/ c y x))))]}))))
 
 (define $SFFp'
-  (lambda [$f $x $i]
-    (let* {[$g (∂/∂ f x)]
-           [$c (gcd f g x)]
-           [$w (fst (P./ f c x))]
+  (lambda [$f $x]
+    (let* {[$g (p.∂/∂ f x)]
+           [$c (p.gcd f g x)]
+           [$w (fst (p.P./ f c x))]
            [$R (step 1 w c)]}
       (match (car R) math-expr
         {[,1 R]
-         [_ (cons (SFFp' (p-inv (car R) x) R))]}))))
+         [_ (append R (SFFp' (p-inv (car R)) x))]}))))
 
+;(SFFp' (* (** x 3) (+ x 1)) x)
 
-(define $deg
+;rewrite p-th power (x^p -> x)              
+;in ch p
+(define $SFF
   (lambda [$f $x]
-    (length (coefficients f x))))
+    (let* {[$g (coef-mod (p.∂/∂ f x))]
+           [$c (p.gcd f g x)]
+           [$w (fst (p.P./ f c x))]}
+      (match c math-expr
+        {[,1 {f}]
+         [,0 {f}]
+         [_ (cons (fst (p.P./ f c x)) (SFF c x))]}))))
+(define $f (+ (** x 2) (* x 2) 1))
+(define $g (* (** (+ x 1) 3) x x x x))
+(define $h (** (+ x 1) 5))
+;(SFF f x)
+;(SFF h x)
 
 ;distinct degree factorization
 (define $DDF'
@@ -160,7 +181,7 @@
 (define $DDF
   (lambda [$f $x] (DDF' f 1 x)))
 
-(DDF (+ (** x 4) x 1) x)
+;(DDF (+ (** x 4) x 1) x)
 ;{[(+ 2 x) 1] [1 2] [(+ 2 x x^2 x^3) 3]}
 
 ;ch 0
@@ -169,8 +190,7 @@
     (let* {[$m (/ (- (** p d) 1) 2)]
            [$a (p.** b m)]}
       {(p.gcd f a x) (p.gcd f (p.+ a 1) x) (p.gcd f (p.- a 1) x)})))
-(Cantor-Zassenhaus (+ 3 (* 4 x) (* 3 x^2) x^3) (+ x 1) x 3)
-
+;(Cantor-Zassenhaus (+ 3 (* 4 x) (* 3 x^2) x^3) (+ x 1) x 3)
 
 ;(map2 2#(Cantor-Zassenhaus %1 x x %2) (map fst (DDF f x)) (map snd (DDF f x)))
 ;{(+ 2 x) 1 (+ 3 (* 4 x) (* 3 x^2) x^3)}
@@ -182,23 +202,3 @@
 
 ;(Cantor-Zassenhaus f x x 1)
 ;(Cantor-Zassenhaus f (+ x 1) x 1)
-
-;rewrite p-th power (x^p -> x)              
-;in ch p
-(define $SFF
-  (lambda [$f $x]
-    (let* {[$g (coef-mod (∂/∂ f x))]
-           [$c (p.gcd f g x)]
-           [$w (fst (p.P./ f c x))]}
-      (match c math-expr
-        {[,1 {f}]
-         [,0 {f}]
-         [_ (cons (fst (p.P./ f c x)) (SFF c x))]}))))
-(define $f (+ (** x 2) (* x 2) 1))
-(define $g (* (** (+ x 1) 3) x x x x))
-(define $h (** (+ x 1) 5))
-;(SFF f x)
-;(SFF h x)
-
-
-
