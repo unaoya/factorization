@@ -180,3 +180,18 @@
 ;{(+ 2 x) x (+ 1 x)}
 (Cantor-Zassenhaus (+ (** x 4) 1) (+ x 1) x 2)
 ;{1 (+ 2 x x^2) (+ 2 (* 2 x) x^2)}
+
+;Henselian lifting
+;http://www.science.unitn.it/~degraaf/compalg/notes.pdf
+
+(define $Euclid
+  (lambda [$f $g]
+    ))
+(define $Hensel
+  (lambda [$f $g $h $x $k]
+    (let* {[$e (/ (- f (* g h)) (** p k))]
+           [$ab (Euclid g h)]
+           [$qr ()]
+           [$u (mod p)]
+           [$v (mod p)]}
+      {(+ g (* u (** p k))) (+ h (* v (** p k)))})))
