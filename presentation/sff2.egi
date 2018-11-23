@@ -5,8 +5,8 @@
       (match y math-expr
         {[,1 {[(fst (p.P./ c y x))] [fac i]}]
          [_ (cons [fac i]
-	 (step (+ i 1) y (fst (p.P./ c y x))))]}))))
-
+	 [_ (append (step (+ i 1) y (fst (p.P./ c y x)))
+	    	    {[fac i]})]}))))
 (define $SFFp'
   (lambda [$f $x]
     (let* {[$g (p.∂/∂ f x)]
