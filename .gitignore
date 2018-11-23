@@ -3,3 +3,11 @@
 *.dvi
 *.nav
 *.snm
+.#sff-test.egi
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
