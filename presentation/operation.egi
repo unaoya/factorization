@@ -1,0 +1,12 @@
+(define $coef-map
+  (lambda [$f $P $x]
+    (sum' (map2 2#(*' %1 (**' x %2))
+    (map f (coefficients P x)) nats0))))
+
+;operation on Fp[x]
+(define $coef-mod
+  (lambda [$P]
+    (coef-map 1#(modulo %1 p) P x)))
+
+(define $p.b.+
+  (lambda [%x %y] (coef-mod (+ x y))))

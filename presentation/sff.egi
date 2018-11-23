@@ -1,0 +1,10 @@
+;square free factorizatin in ch p
+;rewrite p-th power (x^p -> x)
+(define $rewrite-rule-p-power
+  (lambda [$term]
+    (match term math-expr
+      {[(* $a ,x^(& ?(divisor? $ p) $k) $r)
+        (*' a r (**' x (/ k p)))]
+       [_ term]})))
+
+(define $p-inv (map-terms rewrite-rule-p-power $))

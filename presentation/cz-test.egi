@@ -92,66 +92,9 @@
   (lambda [$f $x]
     (length (coefficients f x))))
 
-(define $p.∂/∂
+(define $p.d/d
   (lambda [$f $x]
     (coef-mod (∂/∂ f x))))
-
-;square free factorization in ch 0
-;Yun's algorithm
-(define $Yun'
-  (lambda [$f $g $x]
-    (let* {[$a (gcd f g x)]
-           [$b (fst (P./ f a x))]
-           [$c (fst (P./ g a x))]
-           [$d (- c (∂/∂ b x))]}
-      (match b math-expr
-        {[,1 {a}]
-         [_ (cons a (Yun' b d x))]}))))
-
-(define $SFF0
-  (lambda [$f $x]
-    (cdr (Yun' f (∂/∂ f x) x))))
-
-;square free factorizatin in ch p
-;rewrite p-th power (x^p -> x)              
-(define $rewrite-rule-p-power
-  (lambda [$term]
-    (match term math-expr
-      {[(* $a ,x^(& ?(divisor? $ p) $k) $r)
-        (*' a r (**' x (/ k p)))]
-       [_ term]})))
-
-(define $p-inv (map-terms rewrite-rule-p-power $))
-
-(define $step
-  (lambda [$i $w $c]
-    (let* {[$y (p.gcd w c x)]
-           [$fac (fst (p.P./ w y x))]}
-      (match y math-expr
-        {[,1 {[(fst (p.P./ c y x))] [fac i]}]
-         [_ (cons [fac i] (step (+ i 1) y (fst (p.P./ c y x))))]}))))
-
-(define $SFFp'
-  (lambda [$f $x]
-    (let* {[$g (p.∂/∂ f x)]
-           [$c (p.gcd f g x)]
-           [$w (fst (p.P./ f c x))]
-           [$R (step 1 w c)]}
-      (match (car R) math-expr
-        {[,1 R]
-         [_ (append R (SFFp' (p-inv (car R)) x))]}))))
-
-;distinct degree factorization
-(define $DDF'
-  (lambda [$f $i $x]
-    (let* {[$g (p.gcd (- (** x (** p i)) x) f x)]
-           [$q (p.monic (fst (P./ f g x)) x)]}
-      (match q math-expr
-        {[,1 {[f i]}]
-         [_ (cons [g i] (DDF' q (+ i 1) x))]}))))
-
-(define $DDF
-  (lambda [$f $x] (DDF' f 1 x)))
 
 (define $Cantor-Zassenhaus
   (lambda [$f $b $x $d]
@@ -159,14 +102,5 @@
            [$a (p.** b m)]}
       {(p.gcd f a x) (p.gcd f (p.+ a 1) x) (p.gcd f (p.- a 1) x)})))
 
-;example
-(define $f (+ (** x 7) (* 2 (** x 5)) (** x 3) (* x 2)))
-f
-(SFFp' f x)
-(DDF f x)
-;{[(+ (* 2 x) x^3) 1] [(+ 1 x^4) 2]}
-(Cantor-Zassenhaus (+ (** x 3) (* x 2)) (+ x 2) x 1)
-;{(+ 2 x) x (+ 1 x)}
-(Cantor-Zassenhaus (+ (** x 4) 1) (+ x 1) x 2)
-;{1 (+ 2 x x^2) (+ 2 (* 2 x) x^2)}
-
+(define $f (+ 2 (** x 2)))
+(Cantor-Zassenhaus f (+ x 1) x 1)

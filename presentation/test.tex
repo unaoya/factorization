@@ -1,0 +1,112 @@
+\documentclass[uplatex]{beamer}
+\usepackage{moreverb}
+\input{../../tex/theorems}
+\input{../../tex/symbols}
+
+\title{Egisonによる因数分解}
+\author{梅崎直也@unaoya}
+\date{\today}
+\institute{株式会社すうがくぶんか}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{$\F_p[x]$での因数分解}
+例えば$p=3$では
+
+\begin{align*}
+x^2+2&=x^2+3x+2\\&=(x+1)(x+2)\\
+x^3+1&=x^3+3x^2+3x+1\\&=(x+1)^3\\
+x^3+x^2+x+1&=(x^2+1)(x+1)
+\end{align*}
+\end{frame}
+
+\begin{frame}{$\F_p[x]$での演算}
+多項式の四則、ベキ乗、割り算、gcd、微分などを係数$\mod p$する。
+\verbatimtabinput{operation.egi}
+\end{frame}
+
+\begin{frame}{因数分解アルゴリズムの実装}
+次の三段階で因数分解を行うアルゴリズム
+
+参考:Wikipedia, Factorization of polynomials over finite fields
+
+\begin{enumerate}
+\item $f(x)$を重複度ごとに分解、Square-free factorization
+\item 既約因子の次数ごとに分解、Distict-degree factorization
+\item 次数成分ごとに既約分解、Cantor-Zassenhaus algorithm
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Square-free factorization}
+
+\begin{align*}
+f(x)=f_1(x)f_2(x)^2f_3(x)^3\cdots f_n(x)^n
+\end{align*}
+と各因子$f_i(x)$は重複因子を持たず、それぞれ互いに素であるように分解
+
+
+\begin{align*}
+f(x)&=x^{11}+2x^9+2x^8+x^6+x^5+2x^3+2x^2+1 \in \F_3[x]\\
+&=(x+1)(x^2+1)^3(x+2)^4
+\end{align*}
+\end{frame}
+
+\begin{frame}{SFF実装}
+
+$f'$と$f$の共通約数が重複因子であることを用いる。
+ただし標数$p>0$のときは$(x^p)'=0$なので注意が必要。
+
+\verbatimtabinput{sff.egi}
+
+\end{frame}
+
+\begin{frame}{SFF実装}
+\verbatimtabinput{sff2.egi}
+\end{frame}
+
+
+\begin{frame}{Distict-degree factorization}
+
+\begin{align*}
+f(x)=f_1(x)f_2(X)\cdots f_d(x)
+\end{align*}
+で$f_i(x)$の既約因子が$i$次式であるように分解する。
+
+\begin{align*}
+x^4+2=(x^2+2)(x^2+1)
+\end{align*}
+\end{frame}
+
+\begin{frame}{DDF実装}
+$\F_{q^i}$の乗法群が位数$q^i-1$の有限群であることから、$x^{q^i}-x$との公約数を取ればよい。
+
+\verbatimtabinput{ddf.egi}
+\end{frame}
+
+\begin{frame}{Cantor-Zassenhaus}
+重複因子を持たず、既約成分が全て$d$次である多項式を因数分解する。
+\verbatimtabinput{cz.egi}
+
+\end{frame}
+
+\begin{frame}{今後の課題}
+\begin{enumerate}
+\item 有理数係数での因数分解（Hensel持ち上げ）
+\item 代数的数の扱い（書き換え規則でできそう）
+\item 積分
+\item いちいち$\mod p$での演算を実装し直すのが面倒
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{参考文献}
+\begin{enumerate}
+\item Wikipedia, Factorization of polynomials over finite fields
+\item https://github.com/unaoya/factorization
+\end{enumerate}
+\end{frame}
+
+\end{document}

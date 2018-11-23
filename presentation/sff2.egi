@@ -1,0 +1,17 @@
+(define $step
+  (lambda [$i $w $c]
+    (let* {[$y (p.gcd w c x)]
+           [$fac (fst (p.P./ w y x))]}
+      (match y math-expr
+        {[,1 {[(fst (p.P./ c y x))] [fac i]}]
+         [_ (cons [fac i]
+	 (step (+ i 1) y (fst (p.P./ c y x))))]}))))
+
+(define $SFFp'
+  (lambda [$f $x]
+    (let* {[$g (p.∂/∂ f x)]
+           [$c (p.gcd f g x)]
+           [$w (fst (p.P./ f c x))]
+           [$R (step 1 w c)]}
+      (match (car R) math-expr {[,1 R]
+         [_ (append R (SFFp' (p-inv (car R)) x))]}))))
