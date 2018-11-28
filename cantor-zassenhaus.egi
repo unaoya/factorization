@@ -1,0 +1,8 @@
+(load-file "fp-operation.egi")
+
+(define $Cantor-Zassenhaus
+  (lambda [$f $b $x $d]
+    (let* {[$m (/ (- (** p d) 1) 2)]
+           [$a (p.** b m)]}
+      {(p.gcd f a x) (p.gcd f (p.+ a 1) x) (p.gcd f (p.- a 1) x)})))
+

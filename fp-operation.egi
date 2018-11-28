@@ -1,5 +1,3 @@
-(define $p 3)
-
 (define $coef-map
   (lambda [$f $P $x]
     (sum' (map2 2#(*' %1 (**' x %2)) (map f (coefficients P x)) nats0))))
@@ -92,16 +90,16 @@
   (lambda [$f $x]
     (length (coefficients f x))))
 
-(define $p.d/d
+(define $p.∂/∂
   (lambda [$f $x]
     (coef-mod (∂/∂ f x))))
 
-(define $Cantor-Zassenhaus
-  (lambda [$f $b $x $d]
-    (let* {[$m (/ (- (** p d) 1) 2)]
-           [$a (p.** b m)]}
-      {(p.gcd f a x) (p.gcd f (p.+ a 1) x) (p.gcd f (p.- a 1) x)})))
+;rewrite p-th power (x^p -> x)              
+(define $rewrite-rule-p-power
+  (lambda [$term]
+    (match term math-expr
+      {[(* $a ,x^(& ?(divisor? $ p) $k) $r)
+        (*' a r (**' x (/ k p)))]
+       [_ term]})))
 
-(define $f (+ 2 (** x 2)))
-f
-(Cantor-Zassenhaus f (+ x 1) x 1)
+(define $p-inv (map-terms rewrite-rule-p-power $))

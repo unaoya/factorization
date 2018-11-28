@@ -1,0 +1,41 @@
+(load-file "fp-operation.egi")
+
+(define $p 3)
+
+;square free factorization in ch 0
+;Yun's algorithm
+(define $Yun'
+  (lambda [$f $g $x]
+    (let* {[$a (gcd f g x)]
+           [$b (fst (P./ f a x))]
+           [$c (fst (P./ g a x))]
+           [$d (- c (∂/∂ b x))]}
+      (match b math-expr
+        {[,1 {a}]
+         [_ (cons a (Yun' b d x))]}))))
+
+(define $SFF0
+  (lambda [$f $x]
+    (cdr (Yun' f (∂/∂ f x) x))))
+
+;square free factorizatin in ch p
+(define $step
+  (lambda [$i $w $c $j]
+    (let* {[$y (p.gcd w c x)]
+           [$fac (fst (p.P./ w y x))]
+	   [$d (* i (** p j))]}
+      (match y math-expr
+        {[,1 {[(fst (p.P./ c y x))] [fac d]}]
+         [_ (append (step (+ i 1) y (fst (p.P./ c y x)) j) {[fac d]})]}))))
+
+(define $SFFp'
+  (lambda [$f $x $j]
+    (let* {[$g (p.∂/∂ f x)]
+           [$c (p.gcd f g x)]
+           [$w (fst (p.P./ f c x))]
+           [$R (step 1 w c j)]}
+      (match (car R) math-expr
+        {[,1 (cdr R)]
+         [_ (append (cdr R) (SFFp' (p-inv (car R)) x (+ j 1)))]}))))
+
+(define $SFFp (lambda [$f $x] (SFFp' f x 0)))
