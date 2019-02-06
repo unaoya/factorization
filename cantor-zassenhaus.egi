@@ -1,5 +1,9 @@
 (load-file "fp-operation.egi")
 
+;f is the polynomial to factor
+;x is its variable
+;d is the degree of the factors of f
+;b is a randomly chosen polynomial
 (define $Cantor-Zassenhaus
   (lambda [$f $b $x $d]
     (let* {[$m (/ (- (** p d) 1) 2)]
