@@ -36,10 +36,5 @@
         {[,1 (cdr R)]
          [_ (append (cdr R) (SFFp' (p-inv (car R)) x (+ j 1)))]}))))
 
-(define $SFFp (lambda [$f $x] (SFFp' f x 0)))
-
-(define $p 3)
-;(match (SFFp (** x 2) x) (list [math-expr math-expr])
-(match [1 2] [math-expr math-expr]
-  {[[,1 _] 0]
-   [[_ _] 1]})
+(define $fstnot1? (lambda [$t] (not (eq? (fst t) 1))))
+(define $SFFp (lambda [$f $x] (filter fstnot1? (SFFp' f x 0))))

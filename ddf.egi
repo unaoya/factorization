@@ -1,6 +1,7 @@
 (load-file"fp-operation.egi")
 
 ;distinct degree factorization
+
 (define $DDF'
   (lambda [$f $i $x]
     (let* {[$g (p.gcd (- (** x (** p i)) x) f x)]
@@ -9,5 +10,7 @@
         {[,1 {[f i]}]
          [_ (cons [g i] (DDF' q (+ i 1) x))]}))))
 
+
+;f to be square-free polynomial
 (define $DDF
   (lambda [$f $x] (DDF' f 1 x)))

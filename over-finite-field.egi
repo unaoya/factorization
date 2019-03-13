@@ -9,63 +9,79 @@
     (map (lambda $s
        [(map (lambda $t
               (Cantor-Zassenhaus (fst t) (+ x 1) x (snd t)))
-            (fst s)) (snd s)])
-         (map (lambda $t (match (fst t) math-expr
-                  {[,1 []]
-                   [_ [(DDF (fst t) x) (snd t)]]})) (SFFp f x)))))
+             (fst s)) (snd s)])
+         (map (lambda $t [(DDF (fst t) x) (snd t)]) (SFFp f x)))))
+         
 ;why can't use $ instead of lambda
-
-(define $t1 [1 3])
-(define $t2 [x 2])
-(match (fst t1) math-expr
-  {[(eq? $ ,1) []]
-   [_ t1]})
-(match (fst t2) math-expr
-  {[,1 []]
-   [_ t2]})
 
 ;example
 (define $f (+ (** x 2) (* x -3) 2))
 (SFFp f x)
 ;{[(+ 2 x^2) 1]}
-(map (lambda $t (match (fst t) math-expr
-                  {[,1 []]
-                   [_ [(DDF (fst t) x) (snd t)]]})) (SFFp f x))
-;{[{[(+ 2 x^2) 1]} 1]}
-;(map (DDF (fst $) x) sff-f)
-(factor f)
-;{{{(+ 1 x) (+ 2 x) 1}}}
-;(Cantor-Zassenhaus f (+ x 1) x 1)
+(define $DDFs (lambda [$f $x]
+  (concat
+          (map (lambda $t
+                 (match-all (DDF (fst t) x) (list [math-expr integer])
+                   [<join _ <cons [$f $m] _>> [[f m] (snd t)]]))
+               (SFFp f x)))))
+(DDFs f x)
+;{[[(+ 2 x^2) 1] 1]}
+(define $CZs (lambda [$f $x $p]
+               (match-all (DDFs f x) (list [[math-expr integer] integer])
+                 [<join _ <cons [[$g $m] $a] _>> [(Cantor-Zassenhaus g p x m) a]])))
+(CZs f x (+ x 1))
+;{[{(+ 1 x) (+ 2 x) 1} 1]}
+
 
 (define $g (+ (** x 4) (* (** x 3) 2) (* (** x 2) -3) (* x -4) 1))
 (SFFp g x)
-;{[(+ 2 x) 4] [1 3] [1 2] [1 1]}
-(map (lambda $t (match (fst t) math-expr
-                  {[,1 []]
-                   [_ [(DDF (fst t) x) (snd t)]]})) (SFFp g x))
-
-(factor g)
-;{{{1 (+ 2 x) 1}} {{1 1 1}} {{1 1 1}} {{1 1 1}}}
-;(DDF g x)
-;{[(+ 2 x) 1] [(+ 2 x) 2] [(+ 2 x) 3] [(+ 2 x) 4]}
-;(Cantor-Zassenhaus f (+ x 1) x 4)
+;{[(+ 2 x) 4]}
+(DDFs g x)
+;{[[(+ 2 x) 1] 4]}
+(CZs g x (+ x 1))
+;{[{1 (+ 2 x) 1} 4]}
 
 (define $h (* (** x 2) (+ x 1)))
 h
-(factor h)
+;(+ x^3 x^2)
+(SFFp h x)
+;{[x 2] [(+ 1 x) 1]}
+(DDFs h x)
+;{[[x 1] 2] [[(+ 1 x) 1] 1]}
+(CZs h x (+ x 1))
+;{[{1 1 x} 2] [{(+ 1 x) 1 1} 1]}
+
+(take 5 nats)
+;{[{[x 1]} 2] [{[(+ 1 x) 1]} 1]}
+;(factor h)
+;{[{{1 1 x}} 2] [{{(+ 1 x) 1 1}} 1]}
+
+(define $f2 (* x (+ (** x 2) 1)))
+(SFFp f2 x)
+;{[(+ x x^3) 1]}
+(map (lambda $t [(DDF (fst t) x) (snd t)]) (SFFp f2 x))
+;{[{[x 1] [(+ 1 x^2) 2]} 1]}
+
+
 
 (define $h2 (* (+ (** x 2) 1) (** x 2)))
 h2
+;(+ x^4 x^2)
+;(map (lambda $t [(DDF (fst t) x) (snd t)]) (SFFp g x))
 (factor h2)
+;{[{{1 1 x}} 2] [{{1 1 1} {1 (+ 1 x^2) 1}} 1]}
 
 (define $h3 (+ (** x 7) (* 2 (** x 5)) (** x 3) (* x 2)))
 h3
+;(+ x^7 (* 2 x^5) x^3 (* 2 x))
 (factor h3)
+;{[{{(+ 1 x) (+ 2 x) x} {1 (+ 2 x x^2) (+ 2 (* 2 x) x^2)}} 1]}
 
 (define $h4 (+ (** x 11) (* 2 (** x 9)) (* 2 (** x 8)) (** x 6) (** x 5) (* 2 (** x 3)) (* 2 (** x 2)) 1))
 h4
+;(+ x^11 (* 2 x^9) (* 2 x^8) x^6 x^5 (* 2 x^3) (* 2 x^2) 1)
 (factor h4)
-
+;{[{{1 (+ 2 x) 1}} 4] [{{(+ 1 x) 1 1}} 1] [{{1 1 1} {1 (+ 1 x^2) 1}} 3]}
 
 ;(map (SFFp $ x) (take 10 (map (** (+ x 1) $) nats)))
 
