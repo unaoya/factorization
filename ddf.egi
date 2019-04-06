@@ -3,14 +3,18 @@
 ;distinct degree factorization
 
 (define $DDF'
-  (lambda [$f $i $x]
-    (let* {[$g (p.gcd (- (** x (** p i)) x) f x)]
+  (lambda [$f $d $x]
+    (let* {[$g (p.gcd (- (** x (** p d)) x) f x)]
            [$q (p.monic (fst (P./ f g x)) x)]}
       (match q math-expr
-        {[,1 {[f i]}]
-         [_ (cons [g i] (DDF' q (+ i 1) x))]}))))
+        {[,1 {[f d]}]
+         [_ (cons [g d] (DDF' q (+ d 1) x))]}))))
 
 
 ;f to be square-free polynomial
 (define $DDF
   (lambda [$f $x] (DDF' f 1 x)))
+
+;(define $p 3)
+;(define $f (p.+ x^4 2))
+;(DDF f x)

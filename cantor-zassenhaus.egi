@@ -1,12 +1,21 @@
 (load-file "fp-operation.egi")
 
-;f is the polynomial to factor
-;x is its variable
-;d is the degree of the factors of f
-;b is a randomly chosen polynomial
-(define $Cantor-Zassenhaus
-  (lambda [$f $b $x $d]
-    (let* {[$m (/ (- (** p d) 1) 2)]
-           [$a (p.** b m)]}
-      {(p.gcd f a x) (p.gcd f (p.+ a 1) x) (p.gcd f (p.- a 1) x)})))
 
+(define $generate
+  (lambda [$d $x]
+  	  (foldl (lambda [$r $n] (+ (* r x) n)) 1
+	  	 (scanl (lambda [$r $n] (pure-rand 1 p)) 1 (take d (repeat1 0))))))
+
+(define $Cantor-Zassenhaus
+  (lambda [$f $x $d]
+  	  (match (deg f x) integer
+	  {[,d {f}]
+	  [_ (let* {[$m (/ (- (** p d) 1) 2)]
+	     	    [$b (generate (deg f x) x)]
+             	    [$a (p.** b m)]}
+		    	(concat (map (Cantor-Zassenhaus $ x d)
+				   (filter (lambda [$a] (not (eq? a 1))) {(p.gcd f a x) (p.gcd f (p.+ a 1) x) (p.gcd f (p.- a 1) x)}))))]})))
+
+;(define $p 5)
+;(define $f (* x (+ x 1) (+ x 2) (+ x 3) (+ x 4)))
+;(Cantor-Zassenhaus f x 1)

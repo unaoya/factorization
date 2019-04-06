@@ -38,3 +38,7 @@
 
 (define $fstnot1? (lambda [$t] (not (eq? (fst t) 1))))
 (define $SFFp (lambda [$f $x] (filter fstnot1? (SFFp' f x 0))))
+
+;(define $p 3) 
+;(define $f (p.+ x^11 (p.* 2 x^9) (p.* 2 x^8) x^6 x^5 (p.* 2 x^3) (p.* 2 x^2) 1))
+;(SFFp f x)

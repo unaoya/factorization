@@ -88,7 +88,7 @@
 
 (define $deg
   (lambda [$f $x]
-    (length (coefficients f x))))
+    (- (length (coefficients f x)) 1)))
 
 (define $p.∂/∂
   (lambda [$f $x]

@@ -1,0 +1,36 @@
+(define $p 2)
+
+(load-file "fp-operation.egi")
+
+(define $rewrite-rule-for-a
+  (lambda [$f] (rewrite-rule-for-a-term (rewrite-rule-for-a-poly f))))
+
+(define $rewrite-rule-for-a-term (map-terms rewrite-rule-for-a-term' $))
+(define $rewrite-rule-for-a-poly (map-polys rewrite-rule-for-a-poly' $))
+
+(define $rewrite-rule-for-a-term'
+  (lambda [$term]
+    (match term math-expr
+      {[(* $b ,a^(& ?(gte? $ 3) $k) $r)
+        (*' b r (**' a (remainder k 3)))]
+       [_ term]})))
+
+(define $rewrite-rule-for-a-poly'
+  (lambda [$poly]
+    (match poly math-expr
+      {[(+ (* $b ,a^,2 $mr)
+           (* $c ,a ,mr)
+           $pr)
+        (rewrite-rule-for-a-poly' (+' pr
+                                     (*' -1 b mr)
+                                     (*' (- c b) mr a)
+                                     ))]
+       [_ poly]})))
+
+(define $coef-a-mod
+  (lambda [$P]
+    (coef-map 1#(modulo %1 p) P a)))
+
+(coef-a-mod (rewrite-rule-for-a-poly' (+ a^2 a 1)))
+(coef-a-mod (rewrite-rule-for-a-poly' (+ (+ a 1)^2 (+ a 1) 1)))
+(map (lambda [$x] (coef-a-mod (rewrite-rule-for-a (- x^4 x)))) {0 1 a (+ a 1)})
