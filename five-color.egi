@@ -1,0 +1,116 @@
+;;;
+;;; 5-color
+;;;
+
+(define $node [integer (maybe integer)])
+(define $graph (set [node (list node)])) ;heimengraphnisuru, tokeimawari
+
+(define $colors (between 1 5))
+
+(define $graph-data
+  {[[1 Nothing] {[2 Nothing]}]
+   [[2 Nothing] {[1 Nothing]}]})
+
+(define $main
+  (lambda [$graph-data]
+    (match graph-data graph
+      {; jisuuga 5 ikano node wo remove suru
+       [<cons (& [[$id (nothing)] !<cons _ <cons _ <cons _ <cons _ <cons _ <cons _ _>>>>>>] $node-info) _>
+        (colorize id (add-node node-info (main (remove-node id graph-data))))]
+       ; empty graph
+       [<nil> graph-data]})))
+
+(define $colorize
+  (lambda [$id $graph-data]
+    (match [colors graph-data] [(set integer) graph]
+      {; 周りのノードでまだ5色全部使われていない場合．
+       [[<cons $c _> <cons [[,id (nothing)] !<join _ <cons [_ (just ,c)] _>>] _>]
+        (assign-color id c graph-data)]
+       ; r次数が5で周りで5色全部使われているノードしか残っていない場合．
+       [[_ <cons [[,id (nothing)] <cons [$nid_1 (just $c_1)] <cons [$nid_2 (just $c_2)] <cons [$nid_3 (just $c_3)] <cons [$nid_4 (just $c_4)] <cons [$nid_5 (just $c_5)] <nil>>>>>>] _>]
+        (match graph-data graph
+          ; nid1 to nid3 ga c1 to c3 de tunagaru patan wo sagasu
+          {[<cons [[,nid_1 _] <join _ <cons [$cnid_1 (| (just ,c_1) (just ,c_3))] _>>]
+                  (loop $i [2 $n]
+                    <cons [[,cnid_(- i 1) _] <join _ <cons [$cnid_i (| (just ,c_1) (just ,c_3))] _>>]
+                          ...>
+                    <cons [[,cnid_n _] <join _ <cons [,nid_3 (| (just ,c_1) (just ,c_3))] _>>] _>)>
+            ; 2 to 4 wo junnbannni kakikae
+            (assign-color id c_2 (flip-color id nid_2 c_2 c_4 graph-data))]
+           [_ (assign-color id c_1 (flip-color id nid_1 c_1 c_3 graph-data))]})]
+       })))
+
+      
+(define $assign-color
+  (lambda [$id $c $graph-data]
+    (map (lambda [$n]
+           [(rewrite-node id c (2#%1 n)) (map (lambda [$n] (rewrite-node id c n)) (2#%2 n))])
+         graph-data)))
+
+(define $rewrite-node
+  (lambda [$id $c $n]
+    (match n node
+      {[[,id (nothing)] [id (Just c)]]
+       [_ n]})))
+
+(define $remove-node
+  (lambda [$id $graph-data]
+    (match-all graph-data graph
+      [<cons (& ![[,id _] _] [$nid $edges]) _>
+       [nid (match-all edges (multiset node)
+              [<cons (& ![,id _] $n) _> n])]])))
+
+;(define $add-node
+;  (lambda [$node-info $graph-data]
+;    {node-info @graph-data}))
+
+(define $add-node
+  (lambda [$node-info $graph-data]
+    {[(fst node-info)
+      (match-all [(snd node-info) graph-data] [(set node) graph]
+        {[[<cons [$id _] _> <cons [[,id $c] _] _>] [id c]]
+         [[<cons [$id $c] _> !<cons [[,id _] _] _>] [id c]]})]
+     @(match-all [graph-data (snd node-info)] [graph (set node)]
+        {[[<cons [[$id $c] $edges] _> <cons [,id _] _>] [[id c] {(fst node-info) @edges}]]
+         [[<cons [[$id $c] $edges] _> !<cons [,id _] _>] [[id c] edges]]})}))
+;match-all no kaerichi ha set nanoka list nanoka de kokoga kawaru
+;{} de kakonnda kekkaha dottika?
+;modosu tokini junbann wo oboetenaito dame!!
+;list de yaruyori junban mo data ni motaseta houga yoi?
+
+(define $flip-color
+  (lambda [$id1 $id2 $c1 $c2 $graph-data] ;id1 ga 1ko mae, id2 no iro wo kaeru, id1 to chigau houkouhe susumu
+    (match graph-data graph
+      {[<cons [[,id1 _] <join _ <cons (& [$id3 ,c1] ![id1 _]) _>>] _> (assign-color id2 c2 (flip-color id2 id3 c2 c1))]
+       [_ (assign-color id2 c2 graph-data)]})))
+
+;(rewrite-node 1 5 [1 Nothing]) ; [1 {5}]
+;(assign-color 1 5 graph-data) ; {[[1 {5}] {[2 {}]}] [[2 {}] {[1 {5}]}]}
+;(remove-node 1 graph-data) ;{[[2 {}] {}]}
+;(add-node [[1 Nothing] {[2 Nothing]}] (main (remove-node 1 graph-data))) ;{[[1 {}] {[2 {1}]}] [[2 {1}] {[1 {}]}]}
+;(main graph-data) ; {[[1 {1}] {[2 {2}]}] [[2 {2}] {[1 {1}]}]}
+
+
+(define $graph-data2
+  {[[1 Nothing] {[2 Nothing] [3 Nothing]}]
+   [[2 Nothing] {[1 Nothing]}]
+   [[3 Nothing] {[1 Nothing]}]})
+(main graph-data2)
+
+;graph no error check ga aruto yoi
+
+(define $graph-data3
+  {[[1 Nothing] {[2 Nothing] [3 Nothing]}]
+   [[2 Nothing] {[1 Nothing] [3 Nothing]}]
+   [[3 Nothing] {[1 Nothing] [2 Nothing]}]})
+(main graph-data3)
+
+
+(define $graph-data4
+  {[[1 Nothing] {[2 Nothing] [3 Nothing] [4 Nothing]}]
+   [[2 Nothing] {[1 Nothing] [3 Nothing] [4 Nothing]}]
+   [[3 Nothing] {[1 Nothing] [2 Nothing] [4 Nothing]}]
+   [[4 Nothing] {[1 Nothing] [2 Nothing] [3 Nothing]}]})
+(main graph-data4)
+
+;junbannno mondai ha mikaiketu
