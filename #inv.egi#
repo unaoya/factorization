@@ -1,0 +1,3 @@
+(define $p 5)
+
+(define $pinv (lambda [%x] (match (take p nats) integer {[(eq

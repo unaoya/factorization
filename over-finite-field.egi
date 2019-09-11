@@ -14,15 +14,15 @@
                (match-all (DDFs f x) (list [[math-expr integer] integer])
                  [<join _ <cons [[$g $m] $a] _>> [(Cantor-Zassenhaus g x m) a]])))
 
-(define $p 3)
+;(define $p 3)
 
-(define $g (+ x^4 4))
-(factor g x)
+;(define $g (+ x^4 4))
+;(factor g x)
 
-(define $h (* x (+ x 1) (+ x 2) (+ x 3) (+ x 4)))
-(factor h x)
+;(define $h (* x (+ x 1) (+ x 2) (+ x 3) (+ x 4)))
+;(factor h x)
 
-(define $f (+ x^11 (* 2 x^9) (* 2 x^8) x^6 x^5 (* 2 x^3) (* 2 x^2) 1))
-(factor f x)
+;(define $f (+ x^11 (* 2 x^9) (* 2 x^8) x^6 x^5 (* 2 x^3) (* 2 x^2) 1))
+;(factor f x)
 
 
