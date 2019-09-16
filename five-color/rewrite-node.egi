@@ -1,0 +1,17 @@
+(define $node [integer (maybe integer)])
+
+(define $rewrite-node
+	(lambda [$id $c $n] (match n node
+		{[[,id _] [id (Just c)]]
+		 [_ n]})))
+
+(define $n1 [1 Nothing])
+(define $n2 [2 (Just 1)])
+(rewrite-node 1 1 n1)
+;[1 {{1}}]
+
+(rewrite-node 2 2 n2)
+;[2 {{2}}]
+
+(rewrite-node 2 2 n1)
+;[1 {}]

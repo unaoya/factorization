@@ -1,0 +1,19 @@
+(define $node [integer (maybe integer)])
+(define $graph (set [node (list node)]))
+
+(define $graph-data2
+{[[1 Nothing] {[2 (Just 1)]}]
+[[2 (Just 1)] {[3 (Just 2)] [1 Nothing]}]
+[[3 (Just 2)] {[4 (Just 1)] [2 (Just 1)]}]
+[[4 (Just 1)] {[5 (Just 2)] [3 (Just 2)]}]
+[[5 (Just 2)] {[4 (Just 1)]}]})
+
+(define $c (Just 1))
+
+(match-all graph-data2 graph
+ [<cons [[$id ,c] _] _> id])
+
+(match graph-data2 graph
+ {[<cons [[,3 _] $node-info] _> node-info]
+  [_ 0]})
+

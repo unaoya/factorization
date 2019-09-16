@@ -1,0 +1,14 @@
+(load-file "rewrite-node.egi")
+
+(define $assign-color
+(lambda [$id $c $graph-data] (map (lambda [$n]
+[(rewrite-node id c (2#%1 n))
+(map (lambda [$n] (rewrite-node id c n)) (2#%2 n))])
+graph-data)))
+
+(define $graph-data
+	{[[1 Nothing] {[2 Nothing] [3 Nothing]}]
+	 [[2 Nothing] {[1 Nothing] [3 Nothing]}]
+	 [[3 Nothing] {[1 Nothgin] [2 Nothing]}]})
+
+(assign-color 1 2 graph-data)
